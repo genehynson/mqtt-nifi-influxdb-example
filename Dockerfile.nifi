@@ -1,3 +1,7 @@
 FROM apache/nifi:latest
-COPY nifi-influx-database-nar-1.13.0.nar /opt/nifi/nifi-current/lib
+ADD --chown=nifi:nifi https://github.com/influxdata/nifi-influxdb-bundle/releases/download/v1.13.0/nifi-influx-database-nar-1.13.0.nar /opt/nifi/nifi-current/lib/
+COPY --chown=nifi:nifi MQTT-to-InfluxDB.xml /opt/nifi/nifi-current/conf/templates/
+COPY --chown=nifi:nifi flow.xml.gz /opt/nifi/nifi-current/conf/flow-template.xml.gz
+COPY --chown=nifi:nifi nifi.properties /opt/nifi/nifi-current/conf/nifi-template.properties
 EXPOSE 8443
+ENTRYPOINT []

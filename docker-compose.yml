@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  # nifi:
+  #   image: influxdb/nifi:latest
+  #   command: '../scripts/start.sh'
+  #   container_name: nifi
+  #   ports:
+  #     - '8443:8443'
+  #   restart: always
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto:latest
+    volumes:
+      - ${PWD}/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ${PWD}/mosquitto/data
+      - ${PWD}/mosquitto/log
+    ports:
+      - '1883:1883'
+      - '9001:9001'
+    restart: unless-stopped

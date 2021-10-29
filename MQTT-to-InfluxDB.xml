@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<template encoding-version="1.3">
+    <description></description>
+    <groupId>cd7e9262-017c-1000-630c-e7355f02968d</groupId>
+    <name>MQTT-to-InfluxDB</name>
+    <snippet>
+        <connections>
+            <id>a256fb8b-410a-33b7-0000-000000000000</id>
+            <parentGroupId>2858d894-a4ab-3e5c-0000-000000000000</parentGroupId>
+            <backPressureDataSizeThreshold>1 GB</backPressureDataSizeThreshold>
+            <backPressureObjectThreshold>10000</backPressureObjectThreshold>
+            <destination>
+                <groupId>2858d894-a4ab-3e5c-0000-000000000000</groupId>
+                <id>897405af-f89a-3ff1-0000-000000000000</id>
+                <type>PROCESSOR</type>
+            </destination>
+            <flowFileExpiration>0 sec</flowFileExpiration>
+            <labelIndex>1</labelIndex>
+            <loadBalanceCompression>DO_NOT_COMPRESS</loadBalanceCompression>
+            <loadBalancePartitionAttribute></loadBalancePartitionAttribute>
+            <loadBalanceStatus>LOAD_BALANCE_NOT_CONFIGURED</loadBalanceStatus>
+            <loadBalanceStrategy>DO_NOT_LOAD_BALANCE</loadBalanceStrategy>
+            <name></name>
+            <selectedRelationships>Message</selectedRelationships>
+            <source>
+                <groupId>2858d894-a4ab-3e5c-0000-000000000000</groupId>
+                <id>4621839c-be41-3fe8-0000-000000000000</id>
+                <type>PROCESSOR</type>
+            </source>
+            <zIndex>0</zIndex>
+        </connections>
+        <controllerServices>
+            <id>979b4426-3140-3ab1-0000-000000000000</id>
+            <parentGroupId>2858d894-a4ab-3e5c-0000-000000000000</parentGroupId>
+            <bundle>
+                <artifact>nifi-influx-database-nar</artifact>
+                <group>org.influxdata.nifi</group>
+                <version>1.13.0</version>
+            </bundle>
+            <descriptors>
+                <entry>
+                    <key>line-protocol-character-set</key>
+                    <value>
+                        <name>line-protocol-character-set</name>
+                    </value>
+                </entry>
+            </descriptors>
+            <name>InfluxLineProtocolReader</name>
+            <persistsState>false</persistsState>
+            <properties>
+                <entry>
+                    <key>line-protocol-character-set</key>
+                    <value>UTF-8</value>
+                </entry>
+            </properties>
+            <state>ENABLED</state>
+            <type>org.influxdata.nifi.serialization.InfluxLineProtocolReader</type>
+        </controllerServices>
+        <controllerServices>
+            <id>d723f389-40ab-3be3-0000-000000000000</id>
+            <parentGroupId>2858d894-a4ab-3e5c-0000-000000000000</parentGroupId>
+            <bundle>
+                <artifact>nifi-influx-database-nar</artifact>
+                <group>org.influxdata.nifi</group>
+                <version>1.13.0</version>
+            </bundle>
+            <comments></comments>
+            <descriptors>
+                <entry>
+                    <key>inluxdb-ssl</key>
+                    <value>
+                        <identifiesControllerService>org.apache.nifi.ssl.SSLContextService</identifiesControllerService>
+                        <name>inluxdb-ssl</name>
+                    </value>
+                </entry>
+                <entry>
+                    <key>inluxdb-ssl-auth</key>
+                    <value>
+                        <name>inluxdb-ssl-auth</name>
+                    </value>
+                </entry>
+                <entry>
+                    <key>influxdb-url</key>
+                    <value>
+                        <name>influxdb-url</name>
+                    </value>
+                </entry>
+                <entry>
+                    <key>influxdb-connection-timeout</key>
+                    <value>
+                        <name>influxdb-connection-timeout</name>
+                    </value>
+                </entry>
+                <entry>
+                    <key>influxdb-token</key>
+                    <value>
+                        <name>influxdb-token</name>
+                    </value>
+                </entry>
+            </descriptors>
+            <name>StandardInfluxDatabaseService_2</name>
+            <persistsState>false</persistsState>
+            <properties>
+                <entry>
+                    <key>inluxdb-ssl</key>
+                </entry>
+                <entry>
+                    <key>inluxdb-ssl-auth</key>
+                    <value>REQUIRED</value>
+                </entry>
+                <entry>
+                    <key>influxdb-url</key>
+                    <value>https://us-west-2-1.aws.cloud2.influxdata.com/</value>
+                </entry>
+                <entry>
+                    <key>influxdb-connection-timeout</key>
+                    <value>0 seconds</value>
+                </entry>
+                <entry>
+                    <key>influxdb-token</key>
+                </entry>
+            </properties>
+            <state>ENABLED</state>
+            <type>org.influxdata.nifi.services.StandardInfluxDatabaseService_2</type>
+        </controllerServices>
+        <processors>
+            <id>4621839c-be41-3fe8-0000-000000000000</id>
+            <parentGroupId>2858d894-a4ab-3e5c-0000-000000000000</parentGroupId>
+            <position>
+                <x>0.0</x>
+                <y>0.0</y>
+            </position>
+            <bundle>
+                <artifact>nifi-mqtt-nar</artifact>
+                <group>org.apache.nifi</group>
+                <version>1.14.0</version>
+            </bundle>
+            <config>
+                <bulletinLevel>WARN</bulletinLevel>
+                <comments></comments>
+                <concurrentlySchedulableTaskCount>1</concurrentlySchedulableTaskCount>
+                <descriptors>
+                    <entry>
+                        <key>Broker URI</key>
+                        <value>
+                            <name>Broker URI</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>Client ID</key>
+                        <value>
+                            <name>Client ID</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>Username</key>
+                        <value>
+                            <name>Username</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>Password</key>
+                        <value>
+                            <name>Password</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>SSL Context Service</key>
+                        <value>
+                            <identifiesControllerService>org.apache.nifi.ssl.SSLContextService</identifiesControllerService>
+                            <name>SSL Context Service</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>Last Will Topic</key>
+                        <value>
+                            <name>Last Will Topic</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>Last Will Message</key>
+                        <value>
+                            <name>Last Will Message</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>Last Will Retain</key>
+                        <value>
+                            <name>Last Will Retain</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>Last Will QoS Level</key>
+                        <value>
+                            <name>Last Will QoS Level</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>Session state</key>
+                        <value>
+                            <name>Session state</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>MQTT Specification Version</key>
+                        <value>
+                            <name>MQTT Specification Version</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>Connection Timeout (seconds)</key>
+                        <value>
+                            <name>Connection Timeout (seconds)</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>Keep Alive Interval (seconds)</key>
+                        <value>
+                            <name>Keep Alive Interval (seconds)</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>Group ID</key>
+                        <value>
+                            <name>Group ID</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>Topic Filter</key>
+                        <value>
+                            <name>Topic Filter</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>Quality of Service(QoS)</key>
+                        <value>
+                            <name>Quality of Service(QoS)</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>Max Queue Size</key>
+                        <value>
+                            <name>Max Queue Size</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>record-reader</key>
+                        <value>
+                            <identifiesControllerService>org.apache.nifi.serialization.RecordReaderFactory</identifiesControllerService>
+                            <name>record-reader</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>record-writer</key>
+                        <value>
+                            <identifiesControllerService>org.apache.nifi.serialization.RecordSetWriterFactory</identifiesControllerService>
+                            <name>record-writer</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>add-attributes-as-fields</key>
+                        <value>
+                            <name>add-attributes-as-fields</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>message-demarcator</key>
+                        <value>
+                            <name>message-demarcator</name>
+                        </value>
+                    </entry>
+                </descriptors>
+                <executionNode>ALL</executionNode>
+                <lossTolerant>false</lossTolerant>
+                <penaltyDuration>30 sec</penaltyDuration>
+                <properties>
+                    <entry>
+                        <key>Broker URI</key>
+                        <value>tcp://host.docker.internal:1883</value>
+                    </entry>
+                    <entry>
+                        <key>Client ID</key>
+                        <value>nifi</value>
+                    </entry>
+                    <entry>
+                        <key>Username</key>
+                    </entry>
+                    <entry>
+                        <key>Password</key>
+                    </entry>
+                    <entry>
+                        <key>SSL Context Service</key>
+                    </entry>
+                    <entry>
+                        <key>Last Will Topic</key>
+                    </entry>
+                    <entry>
+                        <key>Last Will Message</key>
+                    </entry>
+                    <entry>
+                        <key>Last Will Retain</key>
+                    </entry>
+                    <entry>
+                        <key>Last Will QoS Level</key>
+                    </entry>
+                    <entry>
+                        <key>Session state</key>
+                        <value>true</value>
+                    </entry>
+                    <entry>
+                        <key>MQTT Specification Version</key>
+                        <value>0</value>
+                    </entry>
+                    <entry>
+                        <key>Connection Timeout (seconds)</key>
+                        <value>30</value>
+                    </entry>
+                    <entry>
+                        <key>Keep Alive Interval (seconds)</key>
+                        <value>60</value>
+                    </entry>
+                    <entry>
+                        <key>Group ID</key>
+                    </entry>
+                    <entry>
+                        <key>Topic Filter</key>
+                        <value>/test</value>
+                    </entry>
+                    <entry>
+                        <key>Quality of Service(QoS)</key>
+                        <value>0</value>
+                    </entry>
+                    <entry>
+                        <key>Max Queue Size</key>
+                        <value>100</value>
+                    </entry>
+                    <entry>
+                        <key>record-reader</key>
+                    </entry>
+                    <entry>
+                        <key>record-writer</key>
+                    </entry>
+                    <entry>
+                        <key>add-attributes-as-fields</key>
+                        <value>true</value>
+                    </entry>
+                    <entry>
+                        <key>message-demarcator</key>
+                    </entry>
+                </properties>
+                <runDurationMillis>0</runDurationMillis>
+                <schedulingPeriod>0 sec</schedulingPeriod>
+                <schedulingStrategy>TIMER_DRIVEN</schedulingStrategy>
+                <yieldDuration>1 sec</yieldDuration>
+            </config>
+            <executionNodeRestricted>false</executionNodeRestricted>
+            <name>ConsumeMQTT</name>
+            <relationships>
+                <autoTerminate>false</autoTerminate>
+                <name>Message</name>
+            </relationships>
+            <relationships>
+                <autoTerminate>true</autoTerminate>
+                <name>parse.failure</name>
+            </relationships>
+            <state>RUNNING</state>
+            <style/>
+            <type>org.apache.nifi.processors.mqtt.ConsumeMQTT</type>
+        </processors>
+        <processors>
+            <id>897405af-f89a-3ff1-0000-000000000000</id>
+            <parentGroupId>2858d894-a4ab-3e5c-0000-000000000000</parentGroupId>
+            <position>
+                <x>744.0</x>
+                <y>0.0</y>
+            </position>
+            <bundle>
+                <artifact>nifi-influx-database-nar</artifact>
+                <group>org.influxdata.nifi</group>
+                <version>1.13.0</version>
+            </bundle>
+            <config>
+                <bulletinLevel>WARN</bulletinLevel>
+                <comments></comments>
+                <concurrentlySchedulableTaskCount>1</concurrentlySchedulableTaskCount>
+                <descriptors>
+                    <entry>
+                        <key>record-reader</key>
+                        <value>
+                            <identifiesControllerService>org.apache.nifi.serialization.RecordReaderFactory</identifiesControllerService>
+                            <name>record-reader</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-service</key>
+                        <value>
+                            <identifiesControllerService>org.influxdata.nifi.services.InfluxDatabaseService_2</identifiesControllerService>
+                            <name>influxdb-service</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-bucket</key>
+                        <value>
+                            <name>influxdb-bucket</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-org</key>
+                        <value>
+                            <name>influxdb-org</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-enable-gzip</key>
+                        <value>
+                            <name>influxdb-enable-gzip</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-log-level</key>
+                        <value>
+                            <name>influxdb-log-level</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-measurement</key>
+                        <value>
+                            <name>influxdb-measurement</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-tags</key>
+                        <value>
+                            <name>influxdb-tags</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-tags-field-behavior</key>
+                        <value>
+                            <name>influxdb-tags-field-behavior</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-fields</key>
+                        <value>
+                            <name>influxdb-fields</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-fields-field-behavior</key>
+                        <value>
+                            <name>influxdb-fields-field-behavior</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-timestamp-field</key>
+                        <value>
+                            <name>influxdb-timestamp-field</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-write-precision</key>
+                        <value>
+                            <name>influxdb-write-precision</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-complex-field-behavior</key>
+                        <value>
+                            <name>influxdb-complex-field-behavior</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-null-behavior</key>
+                        <value>
+                            <name>influxdb-null-behavior</name>
+                        </value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-max-records-size</key>
+                        <value>
+                            <name>influxdb-max-records-size</name>
+                        </value>
+                    </entry>
+                </descriptors>
+                <executionNode>ALL</executionNode>
+                <lossTolerant>false</lossTolerant>
+                <penaltyDuration>30 sec</penaltyDuration>
+                <properties>
+                    <entry>
+                        <key>record-reader</key>
+                        <value>979b4426-3140-3ab1-0000-000000000000</value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-service</key>
+                        <value>d723f389-40ab-3be3-0000-000000000000</value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-bucket</key>
+                        <value>wyze</value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-org</key>
+                        <value>c30f42eb7258aece</value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-enable-gzip</key>
+                        <value>false</value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-log-level</key>
+                        <value>NONE</value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-measurement</key>
+                        <value>measurement</value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-tags</key>
+                        <value>tags</value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-tags-field-behavior</key>
+                        <value>IGNORE</value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-fields</key>
+                        <value>fields</value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-fields-field-behavior</key>
+                        <value>IGNORE</value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-timestamp-field</key>
+                        <value>timestamp</value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-write-precision</key>
+                        <value>NS</value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-complex-field-behavior</key>
+                        <value>TEXT</value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-null-behavior</key>
+                        <value>IGNORE</value>
+                    </entry>
+                    <entry>
+                        <key>influxdb-max-records-size</key>
+                        <value>1 MB</value>
+                    </entry>
+                </properties>
+                <runDurationMillis>0</runDurationMillis>
+                <schedulingPeriod>0 sec</schedulingPeriod>
+                <schedulingStrategy>TIMER_DRIVEN</schedulingStrategy>
+                <yieldDuration>1 sec</yieldDuration>
+            </config>
+            <executionNodeRestricted>false</executionNodeRestricted>
+            <name>PutInfluxDatabaseRecord_2</name>
+            <relationships>
+                <autoTerminate>true</autoTerminate>
+                <name>failure</name>
+            </relationships>
+            <relationships>
+                <autoTerminate>true</autoTerminate>
+                <name>retry</name>
+            </relationships>
+            <relationships>
+                <autoTerminate>true</autoTerminate>
+                <name>success</name>
+            </relationships>
+            <state>RUNNING</state>
+            <style/>
+            <type>org.influxdata.nifi.processors.PutInfluxDatabaseRecord_2</type>
+        </processors>
+    </snippet>
+    <timestamp>10/29/2021 19:56:31 UTC</timestamp>
+</template>
