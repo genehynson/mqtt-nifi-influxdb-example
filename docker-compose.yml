@@ -1,13 +1,13 @@
 version: '3'
 
 services:
-  # nifi:
-  #   image: influxdb/nifi:latest
-  #   command: '../scripts/start.sh'
-  #   container_name: nifi
-  #   ports:
-  #     - '8443:8443'
-  #   restart: always
+  nifi:
+    image: influxdb/nifi:latest
+    command: '../scripts/start.sh'
+    container_name: nifi
+    ports:
+      - '8443:8443'
+    restart: always
   mosquitto:
     container_name: mosquitto
     image: eclipse-mosquitto:latest
