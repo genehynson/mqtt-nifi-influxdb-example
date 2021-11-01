@@ -8,6 +8,9 @@ services:
     ports:
       - '8443:8443'
     restart: always
+    environment:
+      - SINGLE_USER_CREDENTIALS_USERNAME=admin
+      - SINGLE_USER_CREDENTIALS_PASSWORD=nifipassword
   mosquitto:
     container_name: mosquitto
     image: eclipse-mosquitto:latest
