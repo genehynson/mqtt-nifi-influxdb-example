@@ -1,0 +1,86 @@
+# Create Access Token
+POST {{baseUrl}}/access/token
+Content-Type: application/x-www-form-urlencoded
+
+username=admin
+&password=nifipassword
+
+###
+
+# Get Client ID
+GET {{baseUrl}}/flow/client-id
+Authorization: Bearer {{token}}
+
+###
+
+# Get Templates
+GET {{baseUrl}}/flow/templates
+Authorization: Bearer {{token}}
+
+###
+
+# Get Process Group
+GET {{baseUrl}}/flow/process-groups/{{processGroupId}}
+Authorization: Bearer {{token}}
+
+###
+
+# Create Snippet
+POST {{baseUrl}}/snippets
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "snippet": {
+    "parentGroupId": "{{processGroupId}}",
+    "processors": {},
+    "funnels": {},
+    "inputPorts": {},
+    "outputPorts": {},
+    "remoteProcessGroups": {},
+    "processGroups": {
+       "{{processGroupId}}": {
+         "clientId": "{{clientId}}",
+         "version": 1
+       }
+     },
+    "connections": {},
+    "labels": {}
+  }
+}
+
+###
+
+# Create template
+POST {{baseUrl}}/process-groups/{{processGroupId}}/templates
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "My Template",
+  "description": "",
+  "snippetId": "{{snippetId}}"
+}
+
+###
+
+# Create processor
+POST {{baseUrl}}/process-groups/{{processGroupId}}/processors
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+
+{
+  "revision": {
+    "clientId": "{{clientId}}",
+    "version": 0
+  },
+  "component": {
+    "type": "org.apache.nifi.processors.standard.ConsumeMQTT",
+    "name": "ConsumeMQTT",
+    "position": {
+      "x": 1406.2231010674523,
+      "y": 1243.8565539964334
+    }
+  }
+}
