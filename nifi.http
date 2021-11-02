@@ -20,8 +20,29 @@ Authorization: Bearer {{token}}
 ###
 
 # Get Process Group
-GET {{baseUrl}}/flow/process-groups/{{processGroupId}}
+GET {{baseUrl}}/flow/process-groups/{{processGroupFlowId}}
 Authorization: Bearer {{token}}
+
+###
+
+# Create Process Group - seems we need to do this to create a snippet.
+POST {{baseUrl}}/process-groups/{{processGroupFlowId}}/process-groups
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+   "revision":{
+      "clientId":"{{clientId}}",
+      "version":0
+   },
+   "component":{
+      "name":"My process group",
+      "position":{
+         "x":647.5,
+         "y":-299.5
+      }
+   }
+}
 
 ###
 
@@ -32,7 +53,7 @@ Content-Type: application/json
 
 {
   "snippet": {
-    "parentGroupId": "{{processGroupId}}",
+    "parentGroupId": "{{processGroupFlowId}}",
     "processors": {},
     "funnels": {},
     "inputPorts": {},
@@ -52,23 +73,90 @@ Content-Type: application/json
 ###
 
 # Create template
-POST {{baseUrl}}/process-groups/{{processGroupId}}/templates
+POST {{baseUrl}}/process-groups/{{processGroupFlowId}}/templates
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "name": "My Template",
+  "name": "MQTT-Influx",
   "description": "",
   "snippetId": "{{snippetId}}"
 }
 
 ###
 
-# Create processor
-POST {{baseUrl}}/process-groups/{{processGroupId}}/processors
+# Post template
+POST {{baseUrl}}/process-groups/{{processGroupFlowId}}/template-instance
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
+{
+    "originX": "0",
+    "originY": "0",
+    "templateId": "{{newTemplateId}}"
+}
+
+###
+
+# Create ConsumeMQTT processor
+POST {{baseUrl}}/process-groups/{{processGroupFlowId}}/processors
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+
+{
+   "revision":{
+      "clientId":"{{clientId}}",
+      "version":0
+   },
+   "component":{
+      "bundle":{
+         "artifact":"nifi-mqtt-nar",
+         "group":"org.apache.nifi",
+         "version":"1.14.0"
+      },
+      "type":"org.apache.nifi.processors.mqtt.ConsumeMQTT",
+      "name":"ConsumeMQTT",
+      "position":{
+         "x":20,
+         "y":20
+      }
+   }
+}
+
+###
+
+# Create Put Influx Processor
+POST {{baseUrl}}/process-groups/{{processGroupFlowId}}/processors
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+   "revision":{
+      "clientId":"{{clientId}}",
+      "version":0
+   },
+   "component":{
+      "bundle":{
+         "artifact":"nifi-influx-database-nar",
+         "group":"org.influxdata.nifi",
+         "version":"1.13.0"
+      },
+      "type":"org.influxdata.nifi.processors.PutInfluxDatabaseRecord_2",
+      "name":"PutInfluxDatabaseRecord_2",
+      "position":{
+         "x":30,
+         "y":30
+      }
+   }
+}
+
+###
+
+# Link processors
+POST {{baseUrl}}/process-groups/{{processGroupFlowId}}/connections
+Authorization: Bearer {{token}}
+Content-Type: application/json
 
 {
   "revision": {
@@ -76,11 +164,97 @@ Content-Type: application/json
     "version": 0
   },
   "component": {
-    "type": "org.apache.nifi.processors.standard.ConsumeMQTT",
-    "name": "ConsumeMQTT",
-    "position": {
-      "x": 1406.2231010674523,
-      "y": 1243.8565539964334
-    }
+    "name": "",
+    "source": {
+      "id": "{{sourceProcessor}}",
+      "groupId": "{{processGroupFlowId}}",
+      "type": "PROCESSOR"
+    },
+    "destination": {
+      "id": "{{destinationProcessor}}",
+      "groupId": "{{processGroupFlowId}}",
+      "type": "PROCESSOR"
+    },
+    "selectedRelationships": [
+      "Message"
+    ],
+    "flowFileExpiration": "0 sec",
+    "backPressureDataSizeThreshold": "1 GB",
+    "backPressureObjectThreshold": "10000",
+    "bends": [],
+    "prioritizers": []
   }
+}
+
+### Start Processor
+PUT {{baseUrl}}/processors/{{sourceProcessor}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "revision": {
+    "clientId": "{{clientId}}",
+    "version": 2
+  },
+  "component": {
+    "id": "{{sourceProcessor}}",
+    "state": "RUNNING"
+  }
+}
+
+### Update MQTT Processor
+
+PUT {{baseUrl}}/processors/{{sourceProcessor}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+   "revision":{
+      "clientId":"{{clientId}}",
+      "version":0
+   },
+   "component":{
+      "id":"{{sourceProcessor}}",
+      "config":{
+         "properties":{
+            "Broker URI":"tcp://host.docker.internal:1883",
+            "Client ID":"nifi",
+            "Topic Filter":"/test",
+            "Quality of Service(QoS)":"0",
+            "Max Queue Size":"100"
+         }
+      }
+   }
+}
+
+### Update Influx Processor
+PUT {{baseUrl}}/processors/{{destinationProcessor}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+   "revision":{
+      "clientId":"{{clientId}}",
+      "version":4
+   },
+   "component":{
+      "id":"{{destinationProcessor}}",
+      "config":{
+         "properties":{
+           "influxdb-bucket": "nifi",
+           "influxdb-org": "org",
+           "record-reader": "{{influxRecordReader}}"
+         }
+      }
+   }
+}
+
+###
+# Start Entire Process Group Flow Running
+PUT {{baseUrl}}/remote-process-groups/process-group/{{processGroupFlowId}}/run-status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "state": "TRANSMITTING"
 }
