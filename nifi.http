@@ -52,7 +52,7 @@ Content-Type: application/json
 ###
 
 # Create template
-POST {{baseUrl}}/process-groups/e14367fc-017c-1000-f2ac-9daac869775b/templates
+POST {{baseUrl}}/process-groups/{{processGroupId}}/templates
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
