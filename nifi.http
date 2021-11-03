@@ -1,31 +1,23 @@
-# Create Access Token
+### Create Access Token
 POST {{baseUrl}}/access/token
 Content-Type: application/x-www-form-urlencoded
 
 username=admin
 &password=nifipassword
 
-###
-
-# Get Client ID
+### Get Client ID
 GET {{baseUrl}}/flow/client-id
 Authorization: Bearer {{token}}
 
-###
-
-# Get Templates
+### Get Templates
 GET {{baseUrl}}/flow/templates
 Authorization: Bearer {{token}}
 
-###
-
-# Get Process Group
+### Get Process Group
 GET {{baseUrl}}/flow/process-groups/{{processGroupFlowId}}
 Authorization: Bearer {{token}}
 
-###
-
-# Create Process Group - seems we need to do this to create a snippet.
+### Create Process Group
 POST {{baseUrl}}/process-groups/{{processGroupFlowId}}/process-groups
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -44,9 +36,7 @@ Content-Type: application/json
    }
 }
 
-###
-
-# Create Snippet
+### Create Snippet
 POST {{baseUrl}}/snippets
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -62,7 +52,7 @@ Content-Type: application/json
     "processGroups": {
        "{{processGroupId}}": {
          "clientId": "{{clientId}}",
-         "version": 1
+         "version": 0
        }
      },
     "connections": {},
@@ -70,9 +60,7 @@ Content-Type: application/json
   }
 }
 
-###
-
-# Create template
+### Create template
 POST {{baseUrl}}/process-groups/{{processGroupFlowId}}/templates
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -83,26 +71,21 @@ Content-Type: application/json
   "snippetId": "{{snippetId}}"
 }
 
-###
-
-# Post template
+### Post template
 POST {{baseUrl}}/process-groups/{{processGroupFlowId}}/template-instance
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "originX": "0",
-    "originY": "0",
+    "originX": "-272.0",
+    "originY": "65.0",
     "templateId": "{{newTemplateId}}"
 }
 
-###
-
-# Create ConsumeMQTT processor
+### Create ConsumeMQTT processor
 POST {{baseUrl}}/process-groups/{{processGroupId}}/processors
 Authorization: Bearer {{token}}
 Content-Type: application/json
-
 
 {
    "revision":{
@@ -118,15 +101,13 @@ Content-Type: application/json
       "type":"org.apache.nifi.processors.mqtt.ConsumeMQTT",
       "name":"ConsumeMQTT",
       "position":{
-         "x":20,
-         "y":20
+         "x":-232.0,
+         "y":-72.0
       }
    }
 }
 
-###
-
-# Create Put Influx Processor
+### Create PutInflux Processor
 POST {{baseUrl}}/process-groups/{{processGroupId}}/processors
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -145,15 +126,13 @@ Content-Type: application/json
       "type":"org.influxdata.nifi.processors.PutInfluxDatabaseRecord_2",
       "name":"PutInfluxDatabaseRecord_2",
       "position":{
-         "x":30,
-         "y":30
+         "x":408.0,
+         "y":-80.0
       }
    }
 }
 
-###
-
-# Link processors
+### Link processors
 POST {{baseUrl}}/process-groups/{{processGroupId}}/connections
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -186,23 +165,7 @@ Content-Type: application/json
   }
 }
 
-### Start Processor
-PUT {{baseUrl}}/processors/{{sourceProcessor}}
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "revision": {
-    "clientId": "{{clientId}}",
-    "version": 2
-  },
-  "component": {
-    "id": "{{sourceProcessor}}",
-    "state": "RUNNING"
-  }
-}
-
-### Update MQTT Processor
+### Update ConsumeMQTT Processor
 
 PUT {{baseUrl}}/processors/{{sourceProcessor}}
 Authorization: Bearer {{token}}
@@ -211,7 +174,7 @@ Content-Type: application/json
 {
    "revision":{
       "clientId":"{{clientId}}",
-      "version":0
+      "version":3
    },
    "component":{
       "id":"{{sourceProcessor}}",
@@ -219,7 +182,7 @@ Content-Type: application/json
          "properties":{
             "Broker URI":"tcp://host.docker.internal:1883",
             "Client ID":"nifi",
-            "Topic Filter":"/test",
+            "Topic Filter":"/1",
             "Quality of Service(QoS)":"0",
             "Max Queue Size":"100"
          }
@@ -249,6 +212,33 @@ Content-Type: application/json
    }
 }
 
+### Update Influx Processor
+PUT {{baseUrl}}/processors/{{destinationProcessor}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+   "revision":{
+      "clientId":"{{clientId}}",
+      "version":25
+   },
+   "component":{
+      "id":"{{destinationProcessor}}",
+      "config":{
+         "autoTerminatedRelationships":[
+            "success",
+            "failure",
+            "retry"
+         ],
+         "properties":{
+            "influxdb-bucket":"{{influxBucket}}",
+            "influxdb-org":"{{influxOrg}}",
+            "record-reader":"{{influxRecordReader}}"
+         }
+      }
+   }
+}
+
 ### Start the RecordReader Controller Service
 PUT {{baseUrl}}/controller-services/{{influxRecordReader}}/run-status
 Authorization: Bearer {{token}}
@@ -263,7 +253,48 @@ Content-Type: application/json
    "state":"ENABLED"
 }
 
-### Update Influx Processor
+### Create InfluxDB Controller Service
+POST {{baseUrl}}/process-groups/{{processGroupId}}/controller-services
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+   "revision":{
+      "clientId":"{{clientId}}",
+      "version":0
+   },
+   "disconnectedNodeAcknowledged":false,
+   "component":{
+      "type":"org.influxdata.nifi.services.StandardInfluxDatabaseService_2",
+      "bundle":{
+         "group":"org.influxdata.nifi",
+         "artifact":"nifi-influx-database-nar",
+         "version":"1.13.0"
+      },
+      "name":"StandardInfluxDatabaseService_2"
+   }
+}
+
+### Update InfluxDB Controller Service
+PUT {{baseUrl}}/controller-services/{{influxControllerService}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+   "revision":{
+      "clientId":"{{clientId}}",
+      "version":0
+   },
+   "component":{
+      "id": "{{influxControllerService}}",
+      "properties": {
+         "influxdb-token": "{{influxToken}}",
+         "influxdb-url": "{{influxUrl}}"
+      }
+   }
+}
+
+### Update Influx Processor with ControllerService
 PUT {{baseUrl}}/processors/{{destinationProcessor}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -271,26 +302,64 @@ Content-Type: application/json
 {
    "revision":{
       "clientId":"{{clientId}}",
-      "version":3
+      "version":40
    },
    "component":{
       "id":"{{destinationProcessor}}",
       "config":{
          "properties":{
-           "influxdb-bucket": "{{influxBucket}}}",
-           "influxdb-org": "{{influxOrg}}",
-           "record-reader": "{{influxRecordReader}}"
+           "influxdb-service": "{{influxControllerService}}"
          }
       }
    }
 }
 
-###
-# Start Entire Process Group Flow Running
-PUT {{baseUrl}}/remote-process-groups/process-group/{{processGroupId}}/run-status
+### Start the InfluxDB Controller Service
+PUT {{baseUrl}}/controller-services/{{influxControllerService}}/run-status
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "state": "TRANSMITTING"
+   "revision":{
+      "clientId":"{{clientId}}",
+      "version":2
+   },
+   "disconnectedNodeAcknowledged":false,
+   "state":"ENABLED"
+}
+
+### Start Individual Processor
+PUT {{baseUrl}}/processors/{{sourceProcessor}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "revision": {
+    "clientId": "{{clientId}}",
+    "version": 2
+  },
+  "component": {
+    "id": "{{sourceProcessor}}",
+    "state": "RUNNING"
+  }
+}
+
+### Start Entire Process Group Running
+PUT {{baseUrl}}/flow/process-groups/{{processGroupId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+   "id": "{{processGroupId}}",
+  "state": "RUNNING"
+}
+
+### Stop Entire Process Group Running
+PUT {{baseUrl}}/flow/process-groups/{{processGroupId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+   "id": "{{processGroupId}}",
+  "state": "STOPPED"
 }
