@@ -21,6 +21,8 @@ services:
       - '1883:1883'
       - '9001:9001'
     restart: unless-stopped
+    depends_on:
+      - nifi
   mosquitto2:
     container_name: mosquitto2
     image: eclipse-mosquitto:latest
@@ -31,6 +33,8 @@ services:
       - '1884:1883'
       - '9002:9001'
     restart: unless-stopped
+    depends_on:
+      - nifi
   mqtt1:
     container_name: mqtt1
     image: efrecon/mqtt-client
