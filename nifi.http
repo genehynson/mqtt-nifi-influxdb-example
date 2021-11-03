@@ -107,7 +107,7 @@ Content-Type: application/json
    }
 }
 
-### Create Put Influx Processor
+### Create PutInflux Processor
 POST {{baseUrl}}/process-groups/{{processGroupId}}/processors
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -165,7 +165,7 @@ Content-Type: application/json
   }
 }
 
-### Update MQTT Processor
+### Update ConsumeMQTT Processor
 
 PUT {{baseUrl}}/processors/{{sourceProcessor}}
 Authorization: Bearer {{token}}
@@ -294,7 +294,7 @@ Content-Type: application/json
    }
 }
 
-### Update Influx Processor with Controller Service
+### Update Influx Processor with ControllerService
 PUT {{baseUrl}}/processors/{{destinationProcessor}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -344,7 +344,7 @@ Content-Type: application/json
   }
 }
 
-### Start Process Group Running
+### Start Entire Process Group Running
 PUT {{baseUrl}}/flow/process-groups/{{processGroupId}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -354,7 +354,7 @@ Content-Type: application/json
   "state": "RUNNING"
 }
 
-### Stop Process Group Running
+### Stop Entire Process Group Running
 PUT {{baseUrl}}/flow/process-groups/{{processGroupId}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
