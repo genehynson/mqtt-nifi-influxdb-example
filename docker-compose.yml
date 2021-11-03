@@ -11,14 +11,46 @@ services:
     environment:
       - SINGLE_USER_CREDENTIALS_USERNAME=admin
       - SINGLE_USER_CREDENTIALS_PASSWORD=nifipassword
-  mosquitto:
-    container_name: mosquitto
+  mosquitto1:
+    container_name: mosquitto1
     image: eclipse-mosquitto:latest
     volumes:
       - ${PWD}/mosquitto.conf:/mosquitto/config/mosquitto.conf
-      - ${PWD}/mosquitto/data
-      - ${PWD}/mosquitto/log
+      - ${PWD}/mosquitto/data/1/
     ports:
       - '1883:1883'
       - '9001:9001'
     restart: unless-stopped
+    depends_on:
+      - nifi
+  mosquitto2:
+    container_name: mosquitto2
+    image: eclipse-mosquitto:latest
+    volumes:
+      - ${PWD}/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ${PWD}/mosquitto/data/2/
+    ports:
+      - '1884:1883'
+      - '9002:9001'
+    restart: unless-stopped
+    depends_on:
+      - nifi
+  mqtt1:
+    container_name: mqtt1
+    image: efrecon/mqtt-client
+    command: pub -h host.docker.internal -p 1883 -t "/1" -i 1 -m 'mqtt,client=1 myfield="fieldvalue"'
+    volumes:
+      - ${PWD}/pubdata/:/pubdata/
+    depends_on:
+      - mosquitto1
+    restart: always
+  mqtt2:
+    container_name: mqtt2
+    image: efrecon/mqtt-client
+    command: pub -h host.docker.internal -p 1884 -t "/2" -i 2 -m 'mqtt,client=2 myfield="fieldvalue"'
+    volumes:
+      - ${PWD}/pubdata/:/pubdata/
+    depends_on:
+      - mosquitto2
+    restart: always
+

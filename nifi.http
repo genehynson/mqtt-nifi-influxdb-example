@@ -99,7 +99,7 @@ Content-Type: application/json
 ###
 
 # Create ConsumeMQTT processor
-POST {{baseUrl}}/process-groups/{{processGroupFlowId}}/processors
+POST {{baseUrl}}/process-groups/{{processGroupId}}/processors
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -127,7 +127,7 @@ Content-Type: application/json
 ###
 
 # Create Put Influx Processor
-POST {{baseUrl}}/process-groups/{{processGroupFlowId}}/processors
+POST {{baseUrl}}/process-groups/{{processGroupId}}/processors
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -154,7 +154,7 @@ Content-Type: application/json
 ###
 
 # Link processors
-POST {{baseUrl}}/process-groups/{{processGroupFlowId}}/connections
+POST {{baseUrl}}/process-groups/{{processGroupId}}/connections
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -167,12 +167,12 @@ Content-Type: application/json
     "name": "",
     "source": {
       "id": "{{sourceProcessor}}",
-      "groupId": "{{processGroupFlowId}}",
+      "groupId": "{{processGroupId}}",
       "type": "PROCESSOR"
     },
     "destination": {
       "id": "{{destinationProcessor}}",
-      "groupId": "{{processGroupFlowId}}",
+      "groupId": "{{processGroupId}}",
       "type": "PROCESSOR"
     },
     "selectedRelationships": [
@@ -227,6 +227,42 @@ Content-Type: application/json
    }
 }
 
+### Create RecordReader
+POST {{baseUrl}}/process-groups/{{processGroupId}}/controller-services
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+   "revision":{
+      "clientId":"{{clientId}}",
+      "version":0
+   },
+   "disconnectedNodeAcknowledged":false,
+   "component":{
+      "type":"org.influxdata.nifi.serialization.InfluxLineProtocolReader",
+      "bundle":{
+         "group":"org.influxdata.nifi",
+         "artifact":"nifi-influx-database-nar",
+         "version":"1.13.0"
+      },
+      "name":"InfluxLineProtocolReader"
+   }
+}
+
+### Start the RecordReader Controller Service
+PUT {{baseUrl}}/controller-services/{{influxRecordReader}}/run-status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+   "revision":{
+      "clientId":"{{clientId}}",
+      "version":2
+   },
+   "disconnectedNodeAcknowledged":false,
+   "state":"ENABLED"
+}
+
 ### Update Influx Processor
 PUT {{baseUrl}}/processors/{{destinationProcessor}}
 Authorization: Bearer {{token}}
@@ -235,14 +271,14 @@ Content-Type: application/json
 {
    "revision":{
       "clientId":"{{clientId}}",
-      "version":4
+      "version":3
    },
    "component":{
       "id":"{{destinationProcessor}}",
       "config":{
          "properties":{
-           "influxdb-bucket": "nifi",
-           "influxdb-org": "org",
+           "influxdb-bucket": "{{influxBucket}}}",
+           "influxdb-org": "{{influxOrg}}",
            "record-reader": "{{influxRecordReader}}"
          }
       }
@@ -251,7 +287,7 @@ Content-Type: application/json
 
 ###
 # Start Entire Process Group Flow Running
-PUT {{baseUrl}}/remote-process-groups/process-group/{{processGroupFlowId}}/run-status
+PUT {{baseUrl}}/remote-process-groups/process-group/{{processGroupId}}/run-status
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
