@@ -11,46 +11,73 @@ services:
     environment:
       - SINGLE_USER_CREDENTIALS_USERNAME=admin
       - SINGLE_USER_CREDENTIALS_PASSWORD=nifipassword
+      - NIFI_WEB_HTTPS_HOST=nifi
+    networks:
+      - nifi-network
+  nifipoc:
+    image: influxdb/nifipoc:latest
+    command: 'bash ./nifi.bash'
+    container_name: nifi_poc
+    restart: "no"
+    depends_on:
+      - nifi
+    networks:
+      - nifi-network
+    env_file:
+      - .env
   mosquitto1:
     container_name: mosquitto1
     image: eclipse-mosquitto:latest
     volumes:
       - ${PWD}/mosquitto.conf:/mosquitto/config/mosquitto.conf
       - ${PWD}/mosquitto/data/1/
+    hostname: mosquitto1
     ports:
       - '1883:1883'
       - '9001:9001'
     restart: unless-stopped
     depends_on:
       - nifi
+    networks:
+      - nifi-network
   mosquitto2:
     container_name: mosquitto2
     image: eclipse-mosquitto:latest
     volumes:
       - ${PWD}/mosquitto.conf:/mosquitto/config/mosquitto.conf
       - ${PWD}/mosquitto/data/2/
+    hostname: mosquitto2
     ports:
       - '1884:1883'
       - '9002:9001'
     restart: unless-stopped
     depends_on:
       - nifi
+    networks:
+      - nifi-network
   mqtt1:
     container_name: mqtt1
     image: efrecon/mqtt-client
-    command: pub -h host.docker.internal -p 1883 -t "/1" -i 1 -m 'mqtt,client=1 myfield="fieldvalue"'
+    command: pub -h mosquitto1 -p 1883 -t "/1" -i 1 -m 'mqtt,client=1 myfield="fieldvalue"'
     volumes:
       - ${PWD}/pubdata/:/pubdata/
     depends_on:
       - mosquitto1
     restart: always
+    networks:
+      - nifi-network
   mqtt2:
     container_name: mqtt2
     image: efrecon/mqtt-client
-    command: pub -h host.docker.internal -p 1884 -t "/2" -i 2 -m 'mqtt,client=2 myfield="fieldvalue"'
+    command: pub -h mosquitto2 -p 1883 -t "/2" -i 2 -m 'mqtt,client=2 myfield="fieldvalue"'
     volumes:
       - ${PWD}/pubdata/:/pubdata/
     depends_on:
       - mosquitto2
     restart: always
+    networks:
+      - nifi-network
+networks:
+  nifi-network:
+    driver: bridge
 
