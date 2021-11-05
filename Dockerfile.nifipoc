@@ -1,0 +1,10 @@
+FROM bash:latest
+
+# the script requires 'curl' and 'jq'
+RUN apk add --update curl jq
+
+COPY ./nifi.bash .
+RUN chmod +x ./nifi.bash
+
+ENTRYPOINT []   
+CMD []
