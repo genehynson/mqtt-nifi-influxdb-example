@@ -4,6 +4,10 @@ build-nifipoc:
 build-nifi:
 	docker build -f ./Dockerfile.nifi . -t influxdb/nifi:latest
 
+build:
+	$(MAKE) build-nifipoc
+	$(MAKE) build-nifi
+
 start:
 	docker-compose up -d
 

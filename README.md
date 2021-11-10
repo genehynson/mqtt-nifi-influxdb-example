@@ -1,36 +1,38 @@
 ## MQTT + Apache NiFi + InfluxDB Example
 
-Send data from multiple MQTT brokers to InfluxDB via Apache NiFi.
-
+Stream data from multiple MQTT brokers to InfluxDB via Apache NiFi.
 ### Setup
 
-Run NiFi with InfluxDB 2.0 processor plugin:
+TL;DR: 1) fill out `.env`, 2) run `make build`, 3) run `make start`
+
+**Build NiFi image with InfluxDB 2.0 processor plugin:**
 1. Clone this repo
 1. Build influxdb/nifi image: `make build-nifi`
-1. Just run NiFi: `docker run -p 8443:8443 influxdb/nifi:latest ../scripts/start.sh`
-1. Or, run NiFi with 2x MQTT clients, brokers, and a fully configured flow to send data to InfluxDB:
-  - Copy the `example.env` file to `.env` and fill it out.
-  - Run `make start`
+1. If you just want to run a blank NiFi: `docker run -p 8443:8443 influxdb/nifi:latest ../scripts/start.sh`
+1. Import the MQTT-to-InfluxDB NiFi template to play around with streaming MQTT data to InfluxDB
+
+**Start the end-to-end example with multiple MQTT brokers:**
+1. Copy the `example.env` file to `.env` and fill it out.
+1. Build the images with `make build`
+1. Run `make start`
   - NiFi will take about 30 seconds to start. Run `make logs NODE=[service name]` to check the logs of the service (e.g. `make logs NODE=nifi`)
-  - Check your InfluxDB instance - data should be flowing in!
-  - Run `make stop` to shutdown the containers.
+1. Check your InfluxDB instance - data should be flowing into your bucket!
 1. Open NiFi by visiting https://localhost:8443/nifi - click "allow unsafe"
 1. Enter username `admin` & password `nifipassword`
+1. Run `make stop` when you want to shutdown the containers.
 
-Use the `MQTT-to-InfluxDB.xml` template:
-1. In the NiFi GUI, drag a "Template" object to the board and select the "MQTT-to-InfluxDB" template.
-2. Finish configuring the InfluxDB output processor by adding your API Token. To set the token, do:
-  - Right click "PutInfluxDatabaseRecord_2" and click Configure
-  - Click Properties and update Bucket and Organization with your bucket name and orgID. 
-  - Then, click the --> arrow to the right of "StandardInfluxDatabaseService_2"
-  - Click the gear icon next to "StandardInfluxDatabaseService_2"
-  - Paste your token next to "InfluxDB Access Token".
-  - Make sure to clean the lighting bolt next to both "StandardInfluxDatabaseService_2" and "InfluxLineProtocolReader" to start these services.
-  - Click Apply/OK to dismiss all popup windows.
-3. Press play!
+### Example Overview
 
-From your local MQTT client (e.g. MQTTBox), connect to the Mosquitto broker with `tcp://localhost:1883` and publish to topic `/test` with body `mqtt,mytag=tagvalue myfield="fieldvalue"`. You should see these messages written to your InfluxDB instance in the bucket you previously specified.
+So now that you have everything running, what exactly is going on here?
 
-### TODO:
-- figure out how to add the template automatically by importing the `flow.xml.gz` file. This will require setting the `nifi.properties` file so the sensitive keys can be encrypted/decrypted successfully. I can't seem to replace these files at `influxdb/nifi` image build time without running into issues when NiFi starts.
-- convert string & JSON values to Line Protocol with NiFi
+When you ran `make start` you started up several MQTT clients, a couple MQTT mosquitto brokers, and a single NiFi instance. After those continers came online, the nifi.bash script executed to automatically configure NiFi with process groups to subscribe to topics from our MQTT mosquitto brokers. Basically the MQTT clients are publishing messages to the MQTT brokers. NiFi is listening for those messages from the brokers and is sending them to InfluxDB.
+
+Each of the MQTT clients are configured to send different data types to the brokers. One is sending Line Protcol, another is sending JSON, and the third is sending a simple string. The three process groups in NiFi are configured to accept a specific data type. This demonstrates that we can handle these various input types and convert them all to Line Protocol before sending the data to InfluxDB.
+
+### What's in this repo
+- Dockerfile.nifi: a dockerfile that is based on the Apache NiFi image bundled with the InfluxData processor plugin.
+- Dockerfile.nifipoc: a dockerfile that contains the `nifi.bash` script to configure NiFi to communicate with our MQTT brokers
+- docker-compose.yml: a docker compose file that contains the definition for the containers required in this example
+- nifi.bash: a script that uses NiFi's APIs to configure process groups that communicate with our MQTT brokers
+- nifi.http: if you install VSCode's REST Client extension, you can use this file to send example HTTP requests to NiFi
+- MQTT-to-InfluxDB.xml: a NiFi template that's bundled in the `influxdb/nifi` image that provides a simple process group example to stream MQTT data to InfluxDB.
