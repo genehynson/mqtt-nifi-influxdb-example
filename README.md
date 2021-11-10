@@ -29,6 +29,8 @@ When you ran `make start` you started up several MQTT clients, a couple MQTT mos
 
 Each of the MQTT clients are configured to send different data types to the brokers. One is sending Line Protcol, another is sending JSON, and the third is sending a simple string. The three process groups in NiFi are configured to accept a specific data type. This demonstrates that we can handle these various input types and convert them all to Line Protocol before sending the data to InfluxDB.
 
+You can send your own MQTT messages from your local MQTT client (e.g. MQTTBox). Connect to the Mosquitto broker with `tcp://mosquitto1:1883` and publish to topic `/1/lp` with body `mqtt,mytag=tagvalue myfield="fieldvalue"`. You should see these messages written to your InfluxDB instance in the bucket you previously specified. Likewise, NiFi is subscribed to topics `/2/json` and `/2/string` on MQTT broker `tcp://mosquitto2:1883`.
+
 ### What's in this repo
 - Dockerfile.nifi: a dockerfile that is based on the Apache NiFi image bundled with the InfluxData processor plugin.
 - Dockerfile.nifipoc: a dockerfile that contains the `nifi.bash` script to configure NiFi to communicate with our MQTT brokers
