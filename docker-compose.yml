@@ -58,7 +58,7 @@ services:
   mqtt1:
     container_name: mqtt1
     image: efrecon/mqtt-client
-    command: pub -h mosquitto1 -p 1883 -t "/1" -i 1 -m 'mqtt,client=1 myfield="fieldvalue"'
+    command: pub -h mosquitto1 -p 1883 -t "/1/lp" -i 1 -m 'mqtt,client=1 myfield="fieldvalue"'
     volumes:
       - ${PWD}/pubdata/:/pubdata/
     depends_on:
@@ -69,7 +69,18 @@ services:
   mqtt2:
     container_name: mqtt2
     image: efrecon/mqtt-client
-    command: pub -h mosquitto2 -p 1883 -t "/2" -i 2 -m 'mqtt,client=2 myfield="fieldvalue"'
+    command: pub -h mosquitto2 -p 1883 -t "/2/json" -i 2 -m '{"measurement":"my_measurement", "fields":"my_field","tags":"my_tag"}'
+    volumes:
+      - ${PWD}/pubdata/:/pubdata/
+    depends_on:
+      - mosquitto2
+    restart: always
+    networks:
+      - nifi-network
+  mqtt3:
+    container_name: mqtt3
+    image: efrecon/mqtt-client
+    command: pub -h mosquitto2 -p 1883 -t "/2/string" -i 3 -m 'hello'
     volumes:
       - ${PWD}/pubdata/:/pubdata/
     depends_on:

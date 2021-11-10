@@ -11,4 +11,4 @@ stop:
 	docker-compose down
 
 logs:
-	docker-compose logs $(NODE)
+	docker-compose logs -f $(NODE)
